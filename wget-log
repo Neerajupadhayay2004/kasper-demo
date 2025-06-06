@@ -1,0 +1,6 @@
+--2025-06-05 16:43:23--  https://maps.googleapis.com/maps/api/staticmap?center=New+Delhi
+Resolving maps.googleapis.com (maps.googleapis.com)... 142.250.194.74, 142.250.194.106, 142.250.194.138, ...
+Connecting to maps.googleapis.com (maps.googleapis.com)|142.250.194.74|:443... connected.
+HTTP request sent, awaiting response... 400 Bad Request
+2025-06-05 16:43:24 ERROR 400: Bad Request.
+

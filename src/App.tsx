@@ -1,0 +1,17 @@
+const images = {
+  logo: '/images/logo.png',
+  doctorImage: '/images/doctors/doctor.jpg',
+  doctorProfile: '/images/doctors/medical.png',
+  mapImage: '/images/map.jpg',
+  calendarImage: '/images/resources/may-calendar.png',
+  stethoscopeImage: '/images/resources/stethoscope.png',
+  patientImage: '/images/resources/patient.png',
+  backPain: '/images/services/back-pain.jpg',
+  wristPain: '/images/services/wrist-joint-pain.jpg',
+  slippedDisc: '/images/services/slipped-disc.jpg',
+  neckPain: '/images/services/neck-pain.jpg',
+  anklePain: '/images/services/ankle-joint-pain.png',
+  headache: '/images/services/headache.jpg',
+  kneePain: '/images/services/knee-pain.jpg',
+  sportInjuries: '/images/services/sport-injuries.jpg',
+};
