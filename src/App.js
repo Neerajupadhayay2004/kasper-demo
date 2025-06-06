@@ -1191,101 +1191,8 @@ const App = () => {
     }
   ];
 
-  const App = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    date: '',
-    time: '',
-    reason: '',
-  });
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [activeTab, setActiveTab] = useState('contact');
-
-  // Clinic location coordinates
-  const clinicLocation = [19.0760, 72.8777]; // Mumbai coordinates
-
-  // Services data
-  const servicesData = [
-    { id: 1, img: images.backPain, title: 'Back Pain Treatment' },
-    { id: 2, img: images.wristPain, title: 'Joint Pain Treatment' },
-    { id: 3, img: images.slippedDisc, title: 'Slipped Disc Treatment' },
-    { id: 4, img: images.neckPain, title: 'Neck Pain Treatment' },
-    { id: 5, img: images.anklePain, title: 'Joint Pain Treatment' },
-    { id: 6, img: images.headache, title: 'Headache Treatment' },
-    { id: 7, img: images.kneePain, title: 'Knee Pain Treatment' },
-    { id: 8, img: images.sportInjuries, title: 'Sports Injuries Treatment' },
-  ];
-
-  // Patient resources data
-  const resourcesData = [
-    { 
-      id: 1, 
-      type: 'testimonial',
-      img: images.patientImage,
-      content: '"Dr. Rajeev Menon is truly a great doctor. He has lots of experience and his approach is very friendly."',
-      author: '- Priya Mehta',
-      buttonText: 'Read More'
-    },
-    { 
-      id: 2, 
-      type: 'faq',
-      title: 'Frequently Asked Questions',
-      items: [
-        'How can I get my prescription?',
-        'What should I bring to my appointment?',
-        'What should I expect during my first checkup?'
-      ],
-      buttonText: 'View all'
-    },
-    { 
-      id: 3, 
-      type: 'calendar',
-      title: 'Schedule an Appointment',
-      img: images.calendarImage,
-      icon: <FaCalendarAlt size={24} />
-    },
-    { 
-      id: 4, 
-      type: 'blog',
-      title: 'Blog',
-      img: images.stethoscopeImage,
-      content: 'Understanding Chronic Pain',
-      buttonText: 'Read more'
-    }
-  ];
-
-  // Testimonials for carousel
-  const testimonials = [
-    {
-      id: 1,
-      name: 'Priya Mehta',
-      role: 'Patient',
-      content: 'Dr. Rajeev Menon is truly a great doctor. He has lots of experience and his approach is very friendly.',
-      rating: 5
-    },
-    {
-      id: 2,
-      name: 'Rahul Sharma',
-      role: 'Athlete',
-      content: 'After my sports injury, Dr. Menon helped me recover faster than expected. Highly recommended!',
-      rating: 5
-    },
-    {
-      id: 3,
-      name: 'Ananya Patel',
-      role: 'Office Worker',
-      content: 'My chronic back pain is finally manageable thanks to the treatment plan from RelivaWell.',
-      rating: 4
-    }
-  ];
-
   const toggleTheme = () => {
-    setDarkMode(!darkMode);
+      setDarkMode(!darkMode);
   };
 
   const handleInputChange = (e) => {
@@ -1294,41 +1201,82 @@ const App = () => {
       ...formData,
       [name]: value
     });
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors({
+        ...formErrors,
+        [name]: ''
+      });
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name.trim()) errors.name = 'Name is required';
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Email is invalid';
+    }
+    if (activeTab === 'appointment' && !formData.date) errors.date = 'Date is required';
+    if (activeTab === 'appointment' && !formData.time) errors.time = 'Time is required';
+    return errors;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const errors = {};
-    
-    if (!formData.name.trim()) errors.name = 'Name is required';
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      errors.email = 'Email is invalid';
-    }
-    if (!formData.message.trim()) errors.message = 'Message is required';
-    
-    if (activeTab === 'appointment') {
-      if (!formData.date) errors.date = 'Date is required';
-      if (!formData.time) errors.time = 'Time is required';
-      if (!formData.reason) errors.reason = 'Reason is required';
-    }
-    
-    if (Object.keys(errors).length > 0) {
+    const errors = validateForm();
+    if (Object.keys(errors).length === 0) {
+      // In a real app, you would send the form data to a server here
+      console.log('Form submitted:', formData);
+      setIsSubmitted(true);
+      // Reset form after submission
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          message: '',
+          date: '',
+          time: '',
+          reason: '',
+        });
+      }, 3000);
+    } else {
       setFormErrors(errors);
-      return;
     }
-    
-    // Form submission logic would go here
-    console.log('Form submitted:', formData);
-    setIsSubmitted(true);
-    setFormErrors({});
   };
 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setIsSubmitted(false);
-    setFormErrors({});
+  // Custom map controls component
+  const MapControls = () => {
+    const map = useMap();
+    
+    const zoomIn = () => {
+      map.zoomIn();
+    };
+    
+    const zoomOut = () => {
+      map.zoomOut();
+    };
+    
+    const handleZoomChange = (e) => {
+      map.setZoom(parseInt(e.target.value));
+    };
+
+    return (
+      <MapZoomControl>
+        <button onClick={zoomIn}>+</button>
+        <RangeInput 
+          type="range" 
+          min="1" 
+          max="18" 
+          value={map.getZoom()} 
+          onChange={handleZoomChange} 
+        />
+        <button onClick={zoomOut}>-</button>
+      </MapZoomControl>
+    );
   };
 
   return (
@@ -1365,14 +1313,15 @@ const App = () => {
           <HeroSection id="home">
             <HeroContent>
               <HeroTitle>
-                Expert <span>Pain Management</span> and <BlueText>Rehabilitation</BlueText>
+                Expert <span>Physiotherapy</span> Care for <BlueText>Pain Relief</BlueText>
               </HeroTitle>
               <HeroDescription>
-                At RelivaWell, we provide comprehensive pain management and rehabilitation services to help you regain your mobility and quality of life. Our expert team uses evidence-based approaches to treat various musculoskeletal conditions.
+                At RelivaWell, we provide personalized physiotherapy treatments to help you recover from injuries, 
+                manage chronic pain, and improve your overall mobility and quality of life.
               </HeroDescription>
               <PrimaryButton>Book an Appointment</PrimaryButton>
             </HeroContent>
-            <HeroImage src={images.doctorImage} alt="Doctor with patient" />
+            <HeroImage src={images.doctorImage} alt="Physiotherapist helping patient" />
           </HeroSection>
 
           {/* Doctor Section */}
@@ -1381,17 +1330,26 @@ const App = () => {
               <DoctorImage src={images.doctorProfile} alt="Dr. Rajeev Menon" />
               <DoctorDetails>
                 <DoctorName>Dr. Rajeev Menon</DoctorName>
-                <DoctorSpecialty>Pain Management & Rehabilitation Specialist</DoctorSpecialty>
+                <DoctorSpecialty>Senior Physiotherapist & Pain Management Specialist</DoctorSpecialty>
                 <DoctorQualification>
-                  <FaGraduationCap /> MD, DNB (Physical Medicine & Rehabilitation)
+                  <FaGraduationCap /> MPT (Ortho), MIAP, CMP (Canada)
                 </DoctorQualification>
                 <DoctorExperience>
                   <FaClock /> 15+ Years of Experience
                 </DoctorExperience>
+                <Rating>
+                  <Star filled /> <Star filled /> <Star filled /> <Star filled /> <Star filled />
+                  <span style={{ marginLeft: '0.5rem', color: darkMode ? lightTheme.colors.textLight : darkTheme.colors.textLight }}>
+                    4.9 (128 reviews)
+                  </span>
+                </Rating>
                 <DoctorBio>
-                  Dr. Rajeev Menon is a renowned specialist in pain management and rehabilitation with over 15 years of experience. He has helped thousands of patients recover from acute and chronic pain conditions through a combination of advanced medical treatments and personalized rehabilitation programs.
+                  Dr. Rajeev Menon is a highly skilled physiotherapist specializing in orthopedic and sports injuries. 
+                  With over 15 years of clinical experience, he has helped thousands of patients recover from pain 
+                  and regain their mobility. His patient-centered approach combines evidence-based treatments with 
+                  personalized care plans tailored to each individual's needs.
                 </DoctorBio>
-                <PrimaryButton>View Full Profile</PrimaryButton>
+                <PrimaryButton>Learn More</PrimaryButton>
               </DoctorDetails>
             </DoctorContainer>
           </DoctorSection>
@@ -1400,9 +1358,10 @@ const App = () => {
           <ServicesSection id="services">
             <SectionHeader>
               <SectionSubtitle>Our Services</SectionSubtitle>
-              <SectionTitle>Comprehensive Pain Management Solutions</SectionTitle>
+              <SectionTitle>Specialized Physiotherapy Treatments</SectionTitle>
               <SectionDescription>
-                We offer a wide range of services to address various pain conditions and help you achieve optimal recovery.
+                We offer comprehensive physiotherapy services to address a wide range of musculoskeletal conditions 
+                and help you achieve optimal recovery and pain-free living.
               </SectionDescription>
             </SectionHeader>
             
@@ -1424,14 +1383,14 @@ const App = () => {
               <SectionSubtitle>Testimonials</SectionSubtitle>
               <SectionTitle>What Our Patients Say</SectionTitle>
               <SectionDescription>
-                Hear from our patients about their experiences with RelivaWell and Dr. Rajeev Menon.
+                Hear from our patients about their experiences and recovery journeys with RelivaWell Physiotherapy.
               </SectionDescription>
             </SectionHeader>
             
-            <StyledCarousel
-              showArrows={true}
-              infiniteLoop={true}
-              showThumbs={false}
+            <StyledCarousel 
+              showArrows={true} 
+              infiniteLoop={true} 
+              showThumbs={false} 
               showStatus={false}
               autoPlay={true}
               interval={5000}
@@ -1439,7 +1398,7 @@ const App = () => {
               {testimonials.map(testimonial => (
                 <TestimonialCard key={testimonial.id}>
                   <TestimonialContent>
-                    <TestimonialText>{testimonial.content}</TestimonialText>
+                    <TestimonialText>"{testimonial.content}"</TestimonialText>
                     <TestimonialAuthor>{testimonial.name}</TestimonialAuthor>
                     <p>{testimonial.role}</p>
                     <Rating>
@@ -1458,26 +1417,26 @@ const App = () => {
             <ResourcesHeader>
               <ResourcesTitle>Patient Resources</ResourcesTitle>
               <ResourcesSubtitle>
-                Helpful information and tools to support your treatment journey
+                Helpful information and tools to support your treatment journey and recovery process.
               </ResourcesSubtitle>
             </ResourcesHeader>
             
             <ResourcesGrid>
-              {resourcesData.map(resource => (
-                <ResourceCard key={resource.id}>
-                  {resource.type === 'testimonial' && (
-                    <>
+              {resourcesData.map(resource => {
+                if (resource.type === 'testimonial') {
+                  return (
+                    <ResourceCard key={resource.id}>
                       <PatientImage src={resource.img} alt="Patient" />
                       <TestimonialQuote>
                         {resource.content}
                         <PatientName>{resource.author}</PatientName>
                       </TestimonialQuote>
                       <ResourceButton>{resource.buttonText}</ResourceButton>
-                    </>
-                  )}
-                  
-                  {resource.type === 'faq' && (
-                    <>
+                    </ResourceCard>
+                  );
+                } else if (resource.type === 'faq') {
+                  return (
+                    <ResourceCard key={resource.id}>
                       <ResourceTitleWithIcon>
                         <FaGraduationCap /> {resource.title}
                       </ResourceTitleWithIcon>
@@ -1487,39 +1446,36 @@ const App = () => {
                         ))}
                       </FaqList>
                       <ResourceButton>{resource.buttonText}</ResourceButton>
-                    </>
-                  )}
-                  
-                  {resource.type === 'calendar' && (
-                    <>
+                    </ResourceCard>
+                  );
+                } else if (resource.type === 'calendar') {
+                  return (
+                    <ResourceCard key={resource.id}>
                       <ResourceTitleWithIcon>
                         {resource.icon} {resource.title}
                       </ResourceTitleWithIcon>
                       <CalendarImage src={resource.img} alt="Calendar" />
                       <ResourceButton>Book Now</ResourceButton>
-                    </>
-                  )}
-                  
-                  {resource.type === 'blog' && (
-                    <>
+                    </ResourceCard>
+                  );
+                } else if (resource.type === 'blog') {
+                  return (
+                    <ResourceCard key={resource.id}>
                       <ResourceTitle>{resource.title}</ResourceTitle>
                       <BlogImage src={resource.img} alt="Blog post" />
                       <ResourceContent>
-                        <ResourceCategory>Pain Management</ResourceCategory>
-                        <ResourceTitle>{resource.content}</ResourceTitle>
+                        <BlogExcerpt>{resource.content}</BlogExcerpt>
                         <ResourceMeta>
                           <ResourceDate>June 15, 2023</ResourceDate>
                           <ResourceAuthor>By Dr. Menon</ResourceAuthor>
                         </ResourceMeta>
-                        <BlogExcerpt>
-                          Learn about the latest approaches to managing chronic pain and improving quality of life...
-                        </BlogExcerpt>
                         <ResourceButton>{resource.buttonText}</ResourceButton>
                       </ResourceContent>
-                    </>
-                  )}
-                </ResourceCard>
-              ))}
+                    </ResourceCard>
+                  );
+                }
+                return null;
+              })}
             </ResourcesGrid>
           </PatientResourcesSection>
 
@@ -1527,22 +1483,22 @@ const App = () => {
           <ContactSection id="contact">
             <SectionHeader>
               <SectionSubtitle>Get In Touch</SectionSubtitle>
-              <SectionTitle>Contact Us</SectionTitle>
+              <SectionTitle>Contact Our Clinic</SectionTitle>
               <SectionDescription>
-                Have questions or want to schedule an appointment? Reach out to us through the form below or visit our clinic.
+                Have questions or ready to book an appointment? Reach out to us using the form below or visit our clinic.
               </SectionDescription>
             </SectionHeader>
             
             <FormTabs>
               <TabButton 
                 active={activeTab === 'contact'} 
-                onClick={() => handleTabChange('contact')}
+                onClick={() => setActiveTab('contact')}
               >
-                Contact Form
+                Contact Us
               </TabButton>
               <TabButton 
                 active={activeTab === 'appointment'} 
-                onClick={() => handleTabChange('appointment')}
+                onClick={() => setActiveTab('appointment')}
               >
                 Book Appointment
               </TabButton>
@@ -1555,96 +1511,49 @@ const App = () => {
                   <p>
                     {activeTab === 'contact' 
                       ? 'Your message has been sent successfully. We will get back to you soon.' 
-                      : 'Your appointment request has been received. We will contact you to confirm the details.'}
+                      : 'Your appointment request has been received. We will confirm your booking shortly.'}
                   </p>
                 </SuccessMessage>
               ) : (
                 <Form onSubmit={handleSubmit}>
-                  {activeTab === 'contact' ? (
+                  <FormGroup>
+                    <FormLabel>Full Name *</FormLabel>
+                    <FormInput 
+                      type="text" 
+                      name="name" 
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      error={formErrors.name}
+                    />
+                    {formErrors.name && <ErrorText>{formErrors.name}</ErrorText>}
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <FormLabel>Email Address *</FormLabel>
+                    <FormInput 
+                      type="email" 
+                      name="email" 
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      error={formErrors.email}
+                    />
+                    {formErrors.email && <ErrorText>{formErrors.email}</ErrorText>}
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormInput 
+                      type="tel" 
+                      name="phone" 
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </FormGroup>
+                  
+                  {activeTab === 'appointment' && (
                     <>
                       <FormGroup>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormInput 
-                          type="text" 
-                          name="name" 
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          error={formErrors.name}
-                        />
-                        {formErrors.name && <ErrorText>{formErrors.name}</ErrorText>}
-                      </FormGroup>
-                      
-                      <FormGroup>
-                        <FormLabel>Email Address</FormLabel>
-                        <FormInput 
-                          type="email" 
-                          name="email" 
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          error={formErrors.email}
-                        />
-                        {formErrors.email && <ErrorText>{formErrors.email}</ErrorText>}
-                      </FormGroup>
-                      
-                      <FormGroup>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormInput 
-                          type="tel" 
-                          name="phone" 
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                        />
-                      </FormGroup>
-                      
-                      <FormGroup>
-                        <FormLabel>Your Message</FormLabel>
-                        <FormTextarea 
-                          name="message" 
-                          value={formData.message}
-                          onChange={handleInputChange}
-                          error={formErrors.message}
-                        />
-                        {formErrors.message && <ErrorText>{formErrors.message}</ErrorText>}
-                      </FormGroup>
-                    </>
-                  ) : (
-                    <>
-                      <FormGroup>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormInput 
-                          type="text" 
-                          name="name" 
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          error={formErrors.name}
-                        />
-                        {formErrors.name && <ErrorText>{formErrors.name}</ErrorText>}
-                      </FormGroup>
-                      
-                      <FormGroup>
-                        <FormLabel>Email Address</FormLabel>
-                        <FormInput 
-                          type="email" 
-                          name="email" 
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          error={formErrors.email}
-                        />
-                        {formErrors.email && <ErrorText>{formErrors.email}</ErrorText>}
-                      </FormGroup>
-                      
-                      <FormGroup>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormInput 
-                          type="tel" 
-                          name="phone" 
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                        />
-                      </FormGroup>
-                      
-                      <FormGroup>
-                        <FormLabel>Preferred Date</FormLabel>
+                        <FormLabel>Preferred Date *</FormLabel>
                         <FormInput 
                           type="date" 
                           name="date" 
@@ -1656,7 +1565,7 @@ const App = () => {
                       </FormGroup>
                       
                       <FormGroup>
-                        <FormLabel>Preferred Time</FormLabel>
+                        <FormLabel>Preferred Time *</FormLabel>
                         <FormInput 
                           type="time" 
                           name="time" 
@@ -1669,16 +1578,26 @@ const App = () => {
                       
                       <FormGroup>
                         <FormLabel>Reason for Visit</FormLabel>
-                        <FormTextarea 
+                        <FormInput 
+                          type="text" 
                           name="reason" 
+                          placeholder="e.g. Back pain, Sports injury, etc."
                           value={formData.reason}
                           onChange={handleInputChange}
-                          error={formErrors.reason}
-                          placeholder="Please describe your symptoms or reason for the appointment"
                         />
-                        {formErrors.reason && <ErrorText>{formErrors.reason}</ErrorText>}
                       </FormGroup>
                     </>
+                  )}
+                  
+                  {activeTab === 'contact' && (
+                    <FormGroup>
+                      <FormLabel>Your Message</FormLabel>
+                      <FormTextarea 
+                        name="message" 
+                        value={formData.message}
+                        onChange={handleInputChange}
+                      />
+                    </FormGroup>
                   )}
                   
                   <PrimaryButton type="submit">
@@ -1690,23 +1609,32 @@ const App = () => {
             
             <MapWrapper>
               <SectionSubtitle>Our Location</SectionSubtitle>
-              <MapContainer center={clinicLocation} zoom={15} scrollWheelZoom={false}>
+              <MapContainer 
+                center={clinicLocation} 
+                zoom={13} 
+                style={{ height: '400px', width: '100%', borderRadius: '12px' }}
+              >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 <Marker position={clinicLocation}>
                   <Popup>
-                    RelivaWell Pain Management Clinic<br />
-                    Mumbai, India
+                    <strong>RelivaWell Physiotherapy Clinic</strong><br />
+                    123 Wellness Avenue, Mumbai 400001
                   </Popup>
                 </Marker>
+                <MapControls />
               </MapContainer>
+              
               <MapAddress>
-                <FaMapMarkerAlt /> 123 Medical Plaza, Andheri West, Mumbai - 400053
+                <FaMapMarkerAlt style={{ marginRight: '0.5rem' }} />
+                123 Wellness Avenue, Mumbai 400001, Maharashtra
               </MapAddress>
+              
               <MapHours>
-                <FaClock /> Monday to Saturday: 9:00 AM - 6:00 PM
+                <FaClock style={{ marginRight: '0.5rem' }} />
+                Monday - Saturday: 9:00 AM - 7:00 PM | Sunday: Closed
               </MapHours>
             </MapWrapper>
           </ContactSection>
@@ -1717,7 +1645,8 @@ const App = () => {
           <FooterColumn>
             <FooterTitle>About RelivaWell</FooterTitle>
             <FooterText>
-              RelivaWell is a premier pain management and rehabilitation clinic dedicated to helping patients regain their mobility and quality of life.
+              RelivaWell Physiotherapy Clinic provides expert care for pain management, 
+              injury rehabilitation, and mobility improvement.
             </FooterText>
             <SocialIcons>
               <SocialIcon href="#"><i className="fab fa-facebook-f"></i></SocialIcon>
@@ -1730,38 +1659,43 @@ const App = () => {
           <FooterColumn>
             <FooterTitle>Quick Links</FooterTitle>
             <FooterLink href="#home">Home</FooterLink>
-            <FooterLink href="#about">About Dr. Menon</FooterLink>
-            <FooterLink href="#services">Our Services</FooterLink>
+            <FooterLink href="#about">About Us</FooterLink>
+            <FooterLink href="#services">Services</FooterLink>
             <FooterLink href="#resources">Patient Resources</FooterLink>
-            <FooterLink href="#contact">Contact Us</FooterLink>
+            <FooterLink href="#contact">Contact</FooterLink>
+            <FooterLink href="#">Privacy Policy</FooterLink>
+            <FooterLink href="#">Terms of Service</FooterLink>
           </FooterColumn>
           
           <FooterColumn>
             <FooterTitle>Our Services</FooterTitle>
             <FooterLink href="#">Back Pain Treatment</FooterLink>
             <FooterLink href="#">Neck Pain Treatment</FooterLink>
-            <FooterLink href="#">Joint Pain Treatment</FooterLink>
-            <FooterLink href="#">Sports Injuries</FooterLink>
-            <FooterLink href="#">Rehabilitation Programs</FooterLink>
+            <FooterLink href="#">Sports Injury Rehabilitation</FooterLink>
+            <FooterLink href="#">Post-Surgical Rehabilitation</FooterLink>
+            <FooterLink href="#">Joint Pain Management</FooterLink>
+            <FooterLink href="#">Posture Correction</FooterLink>
+            <FooterLink href="#">Custom Orthotics</FooterLink>
           </FooterColumn>
           
           <FooterColumn>
             <FooterTitle>Newsletter</FooterTitle>
             <FooterText>
-              Subscribe to our newsletter for health tips and clinic updates.
+              Subscribe to our newsletter for health tips, clinic updates, and special offers.
             </FooterText>
             <NewsletterForm>
-              <NewsletterInput type="email" placeholder="Your Email" />
-              <NewsletterButton type="submit">Subscribe</NewsletterButton>
+              <NewsletterInput type="email" placeholder="Your email address" />
+              <NewsletterButton>Subscribe</NewsletterButton>
             </NewsletterForm>
           </FooterColumn>
         </Footer>
         
         <Copyright>
-          &copy; {new Date().getFullYear()} RelivaWell Pain Management Clinic. All Rights Reserved.
+          &copy; {new Date().getFullYear()} RelivaWell Physiotherapy Clinic. All Rights Reserved.
         </Copyright>
       </AppContainer>
     </ThemeProvider>
   );
+};
 
 export default App;
